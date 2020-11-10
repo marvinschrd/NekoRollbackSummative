@@ -35,6 +35,7 @@ PlayerCharacterManager::PlayerCharacterManager(EntityManager& entityManager, Phy
 {
 
 }
+        bool canFly = true;
 
 void PlayerCharacterManager::FixedUpdate(seconds dt)
 {
@@ -52,18 +53,36 @@ void PlayerCharacterManager::FixedUpdate(seconds dt)
         const bool up = input & PlayerInput::UP;
         const bool down = input & PlayerInput::DOWN;
 
-        const auto angularVelocity = ((left ? 1.0f : 0.0f) + (right ? -1.0f : 0.0f)) * playerAngularSpeed;
-
-        playerBody.angularVelocity = angularVelocity;
-
-        auto dir = Vec2f::up;
-        dir = dir.Rotate(-(playerBody.rotation + playerBody.angularVelocity * dt.count()));
-
-        const auto acceleration = ((down ? -1.0f : 0.0f) + (up ? 1.0f : 0.0f)) * dir;
+        float jumpforce = 0.5f;
+        /*auto jump = Vec2f::up;
+        jump = Vec2f(playerBody.velocity.x, ((up ? 0.1f: -0.05f)));*/
 
 
-        playerBody.velocity += acceleration * dt.count();
+        //const auto angularVelocity = ((left ? 1.0f : 0.0f) + (right ? -1.0f : 0.0f)) * playerAngularSpeed;
+      
+        //playerBody.angularVelocity = angularVelocity;
 
+       /* auto dir = Vec2f::up;
+        dir = dir.Rotate(-(playerBody.rotation + playerBody.angularVelocity * dt.count()));*/
+
+        /*auto dir = Vec2f();
+        dir = Vec2f(((left ? 0.2f : 0.0f) + (right ? -0.2f : 0.0f)), playerBody.velocity.y);*/
+
+      //  const auto acceleration = ((down ? -1.0f : 0.0f) + (up ? 1.0f : 0.0f)) * dir;
+        //const auto acceleration = ((left ? -1.0f : 0.0f) + (right ? 1.0f : 0.0f)) * dir ;
+
+      //  playerBody.velocity += acceleration * dt.count();
+
+        float jump = ((up ? 0.9f : -0.5f));
+        float dir = ((left ? 3.0f : 0.0f) + (right ? -3.0f : 0.0f));
+      
+       
+
+
+       // playerBody.velocity += dir * dt.count();
+        playerBody.velocity.y += jump;
+       playerBody.velocity.x += dir * dt.count();
+        
         physicsManager_.get().SetBody(playerEntity, playerBody);
 
         if(playerCharacter.invincibilityTime > 0.0f)
@@ -71,14 +90,14 @@ void PlayerCharacterManager::FixedUpdate(seconds dt)
             playerCharacter.invincibilityTime -= dt.count();
             SetComponent(playerEntity, playerCharacter);
         }
-
+        //Check if cannot shoot, and increase shootingTime
         if(playerCharacter.shootingTime < playerShootingPeriod)
         {
             playerCharacter.shootingTime += dt.count();
             SetComponent(playerEntity, playerCharacter);
         }
-
-        if (playerCharacter.shootingTime >= playerShootingPeriod)
+        //Shooting mechanism
+       /* if (playerCharacter.shootingTime >= playerShootingPeriod)
         {
             if(input & PlayerInput::SHOOT)
             {
@@ -93,7 +112,7 @@ void PlayerCharacterManager::FixedUpdate(seconds dt)
                 playerCharacter.shootingTime = 0.0f;
                 SetComponent(playerEntity, playerCharacter);
             }
-        }
+        }*/
     }
 }
 

@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 #include "asteroid/physics_manager.h"
+#include "asteroid/game.h"
 
 namespace neko::asteroid
 {
@@ -47,6 +48,23 @@ void PhysicsManager::FixedUpdate(seconds dt)
         if (!entityManager_.get().HasComponent(entity, EntityMask(neko::ComponentType::BODY2D)))
             continue;
         auto body = bodyManager_.GetComponent(entity);
+        //body.velocity.y += -0.000981f;
+        if (body.velocity.y <= -2.0f)
+        {
+            body.velocity.y = -2.0f;
+        }
+        if (body.velocity.y >= 3.0f)
+        {
+            body.velocity.y = 3.0f;
+        }
+        if (body.velocity.x >= 5.0f)
+        {
+            body.velocity.x = 5.0f;
+        }
+        if (body.velocity.x <= -5.0f)
+        {
+            body.velocity.x = -5.0f;
+        }
         body.position += body.velocity * dt.count();
         body.rotation += body.angularVelocity * dt.count();
         bodyManager_.SetComponent(entity, body);
@@ -54,14 +72,16 @@ void PhysicsManager::FixedUpdate(seconds dt)
     for (Entity entity = 0; entity < entityManager_.get().GetEntitiesSize(); entity++)
     {
         if(!entityManager_.get().HasComponent(entity, 
-            EntityMask(neko::ComponentType::BODY2D)|EntityMask(neko::ComponentType::BOX_COLLIDER2D)))
+            EntityMask(neko::ComponentType::BODY2D)|EntityMask(neko::ComponentType::BOX_COLLIDER2D)) ||
+            entityManager_.get().HasComponent(entity, EntityMask(neko::asteroid::ComponentType::DESTROYED)))
             continue;
-        for (Entity otherEntity = 0; otherEntity < entityManager_.get().GetEntitiesSize(); otherEntity++)
+        for (Entity otherEntity = entity; otherEntity < entityManager_.get().GetEntitiesSize(); otherEntity++)
         {
             if(entity == otherEntity)
                 continue;
             if (!entityManager_.get().HasComponent(otherEntity,
-                EntityMask(neko::ComponentType::BODY2D) | EntityMask(neko::ComponentType::BOX_COLLIDER2D)))
+                EntityMask(neko::ComponentType::BODY2D) | EntityMask(neko::ComponentType::BOX_COLLIDER2D)) ||
+                entityManager_.get().HasComponent(entity, EntityMask(neko::asteroid::ComponentType::DESTROYED)))
                 continue;
             const Body& body1 = bodyManager_.GetComponent(entity);
             const Box& box1 = boxManager_.GetComponent(entity);
